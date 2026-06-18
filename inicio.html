@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dock Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --surface: #f5f5f7;
+      --card: #f9f9fb;
+      --border: rgba(0,0,0,0.09);
+      --text: #0a0a0f;
+      --muted: #777788;
+      --cyan: #00aacc;
+      --pink: #e0008a;
+      --yellow: #c8a800;
+      --purple: #7c22d4;
+      --green: #009966;
+      --font: 'Space Grotesk', sans-serif;
+      --mono: 'Space Mono', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      text-align: center;
+      padding: 40px 24px 0;
+      position: relative;
+    }
+
+    .perfil-link {
+      position: absolute;
+      top: 20px;
+      right: 32px;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      font-family: var(--mono);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 100px;
+      transition: all 0.2s;
+    }
+    .perfil-link:hover { color: var(--text); border-color: rgba(0,0,0,0.25); }
+
+    .logo-main {
+      font-family: var(--mono);
+      font-size: clamp(52px, 10vw, 96px);
+      font-weight: 700;
+      letter-spacing: -3px;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--pink) 50%, var(--yellow) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    /* ── NAV TABS ── */
+    nav {
+      display: flex;
+      justify-content: center;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-top: 24px;
+    }
+
+    .nav-tab {
+      padding: 14px 48px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: var(--font);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: block;
+    }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+    /* ── SEARCH ── */
+    .search-wrap {
+      max-width: 640px;
+      margin: 28px auto 0;
+      padding: 0 24px;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 18px;
+      transition: border-color 0.2s;
+    }
+    .search-box:focus-within { border-color: #aaa; }
+    .search-box input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      outline: none;
+    }
+    .search-box input::placeholder { color: var(--muted); }
+    .search-icon { color: var(--muted); font-size: 16px; }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      font-family: var(--mono);
+    }
+
+    /* ── CARDS GRID ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 900px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+
+    .music-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .music-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,0,0,0.18);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+    }
+
+    .card-cover {
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      position: relative;
+    }
+    .card-play-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+      font-size: 28px;
+    }
+    .music-card:hover .card-play-overlay { opacity: 1; }
+
+    .card-info { padding: 12px 14px 14px; }
+    .card-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 3px;
+    }
+    .card-artist { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+    .card-bpm { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-bottom: 8px; }
+    .card-price { font-family: var(--mono); font-size: 14px; font-weight: 700; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-family: var(--mono);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="#" class="perfil-link">perfil</a>
+  <div class="logo-main">Dock Studio</div>
+</header>
+
+<nav>
+  <a href="#" class="nav-tab active">Beats</a>
+  <a href="#" class="nav-tab">Samples</a>
+  <a href="#" class="nav-tab">Servicios</a>
+</nav>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Buscar...">
+  </div>
+</div>
+
+<main>
+
+  <div class="section-label">Destacado</div>
+  <div class="cards-grid">
+
+    <div class="music-card">
+      <div class="card-cover" style="background:linear-gradient(135deg,#e8d5ff,#c084fc)">🎹
+        <div class="card-play-overlay">▶</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Midnight Bounce</div>
+        <div class="card-artist">@trapking</div>
+        <div class="card-bpm">140 BPM</div>
+        <div class="card-price" style="color:var(--purple)">Desde $4.99</div>
+      </div>
+    </div>
+
+    <div class="music-card">
+      <div class="card-cover" style="background:linear-gradient(135deg,#ffd6e8,#ff80b5)">🎤
+        <div class="card-play-overlay">▶</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">La Noche Es Nuestra</div>
+        <div class="card-artist">@soleida</div>
+        <div class="card-bpm">96 BPM</div>
+        <div class="card-price" style="color:var(--pink)">Desde $9.99</div>
+      </div>
+    </div>
+
+    <div class="music-card">
+      <div class="card-cover" style="background:linear-gradient(135deg,#fff3cc,#ffd84d)">🥁
+        <div class="card-play-overlay">▶</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Trap Drums 808</div>
+        <div class="card-artist">@samplelab</div>
+        <div class="card-bpm">145 BPM</div>
+        <div class="card-price" style="color:var(--yellow)">Desde $12.99</div>
+      </div>
+    </div>
+
+    <div class="music-card">
+      <div class="card-cover" style="background:linear-gradient(135deg,#ccf5e8,#4dd9a8)">🎷
+        <div class="card-play-overlay">▶</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Soul Sessions</div>
+        <div class="card-artist">@jazzfusion</div>
+        <div class="card-bpm">88 BPM</div>
+        <div class="card-price" style="color:var(--green)">Desde $14.99</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cards-grid">
+
+    <div class="music-card">
+      <div class="card-cover" style="background:linear-gradient(135deg,#cceeff,#66ccff)">🌊
+        <div class="card-play-overlay">▶</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Ocean Drive</div>
+        <div class="card-artist">@waverider</div>
+        <div class="card-bpm">110 BPM</div>
+        <div class="card-price" style="color:var(--cyan)">Desde $7.99</div>
+      </div>
+    </div>
+
+    <div class="music-card">
+      <div class="card-cover" style="background:linear-gradient(135deg,#e0ccff,#9966ff)">🌌
+        <div class="card-play-overlay">▶</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Space Synths Vol.1</div>
+        <div class="card-artist">@cosmicflow</div>
+        <div class="card-bpm">128 BPM</div>
+        <div class="card-price" style="color:var(--purple)">Desde $15.99</div>
+      </div>
+    </div>
+
+    <div class="music-card">
+      <div class="card-cover" style="background:linear-gradient(135deg,#ffd6f0,#ff66cc)">💃
+        <div class="card-play-overlay">▶</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Sabor Latino</div>
+        <div class="card-artist">@lareina</div>
+        <div class="card-bpm">100 BPM</div>
+        <div class="card-price" style="color:var(--pink)">Desde $11.99</div>
+      </div>
+    </div>
+
+    <div class="music-card">
+      <div class="card-cover" style="background:linear-gradient(135deg,#ffe8cc,#ffaa55)">🎸
+        <div class="card-play-overlay">▶</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Golden Era</div>
+        <div class="card-artist">@oldschool</div>
+        <div class="card-bpm">93 BPM</div>
+        <div class="card-price" style="color:var(--yellow)">Desde $19.99</div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>dock_studio · © 2025</footer>
+
+</body>
+</html>
